@@ -1,0 +1,100 @@
+{
+  "type": "FeatureCollection",
+  "name": "hazard_100mmhr",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "zone_id": "SB_HIGH_01",
+        "name": "Silk Board Underpass Dip",
+        "rainfall_scenario": "100mmhr",
+        "risk_score": 0.88,
+        "assumed_drain_status": "capacity_exceeded"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [77.6210, 12.9160],
+            [77.6240, 12.9160],
+            [77.6240, 12.9185],
+            [77.6210, 12.9185],
+            [77.6210, 12.9160]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "zone_id": "SB_MED_02",
+        "name": "BTM 1st Stage Road Junction",
+        "rainfall_scenario": "100mmhr",
+        "risk_score": 0.68,
+        "assumed_drain_status": "partial_overflow"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [77.6180, 12.9150],
+            [77.6205, 12.9150],
+            [77.6205, 12.9170],
+            [77.6180, 12.9170],
+            [77.6180, 12.9150]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "zone_id": "SB_MED_03",
+        "name": "Madiwala Drain Inlet Corridor",
+        "rainfall_scenario": "100mmhr",
+        "risk_score": 0.72,
+        "assumed_drain_status": "surging"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [77.6225, 12.9200],
+            [77.6260, 12.9200],
+            [77.6260, 12.9225],
+            [77.6225, 12.9225],
+            [77.6225, 12.9200]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "zone_id": "SB_MED_04",
+        "name": "HSR ORR Service Road",
+        "rainfall_scenario": "100mmhr",
+        "risk_score": 0.58,
+        "assumed_drain_status": "near_capacity"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [77.6260, 12.9140],
+            [77.6285, 12.9140],
+            [77.6285, 12.9165],
+            [77.6260, 12.9165],
+            [77.6260, 12.9140]
+          ]
+        ]
+      }
+    }
+  ]
+}

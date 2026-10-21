@@ -1,0 +1,36 @@
+# ==============================================================
+# Urban Flood Risk Platform: Monorepo Requirements
+# Team Roles: P1 (CV), P2 (Hydro), P3 (GIS), P4 (App & Lead)
+# ==============================================================
+
+# P4: Backend, API, Integration & Database
+fastapi>=0.110.0
+uvicorn[standard]>=0.28.0
+pydantic>=2.6.0
+sqlalchemy>=2.0.28
+python-multipart>=0.0.9
+requests>=2.31.0
+httpx>=0.27.0
+
+# P2 & P3: GIS, Terrain Analysis, Hydrology & Geospatial
+geopandas>=0.14.0
+shapely>=2.0.0
+rasterio>=1.3.9
+osmnx>=1.9.0
+exifread>=3.0.0
+pandas>=2.2.0
+numpy>=1.26.0
+matplotlib>=3.8.0
+
+# P1: Computer Vision & Object/Pose Detection
+torch>=2.2.0
+transformers>=4.38.0
+ultralytics>=8.1.0
+opencv-python>=4.9.0
+albumentations>=1.4.0
+pillow>=10.2.0
+
+# Code Quality, Formatting & Automated Testing (All)
+ruff>=0.3.0
+pytest>=8.0.0
+pytest-asyncio>=0.23.0

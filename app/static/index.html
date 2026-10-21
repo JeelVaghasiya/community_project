@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Urban Flood Risk Platform | Bengaluru Pilot</title>
+  <meta name="description" content="Street-level flood risk platform combining EPA SWMM/DEM physical predictions with Computer Vision camera observations for Bengaluru.">
+  
+  <!-- Modern Typography: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  
+  <!-- Custom Platform Styles -->
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Top Header Bar -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">Urban Flood Risk Platform</h1>
+          <span class="brand-subtitle">Bengaluru Pilot • Central Silk Board Junction (1 km²)</span>
+        </div>
+      </div>
+
+      <!-- Controls & Live Status -->
+      <div class="header-controls">
+        <div class="control-group">
+          <label for="scenario-select" class="control-label">Rainfall Scenario</label>
+          <div class="select-wrapper">
+            <select id="scenario-select" class="custom-select">
+              <option value="50mmhr">50 mm/hr (Moderate)</option>
+              <option value="100mmhr" selected>100 mm/hr (Heavy)</option>
+              <option value="150mmhr">150 mm/hr (Extreme)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="status-indicator">
+          <span class="pulse-dot"></span>
+          <span id="feed-status-text">Live Feed Active</span>
+        </div>
+
+        <button id="btn-quick-simulate" class="btn btn-primary" title="Trigger a synthetic camera observation">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+            <circle cx="12" cy="13" r="4"></circle>
+          </svg>
+          Simulate Camera Ping
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Area: Map and Inspector Side Panel -->
+    <main class="main-content">
+      <!-- Leaflet Map Container -->
+      <div id="map-container" class="map-wrapper">
+        <div id="map"></div>
+
+        <!-- Floating Map Legend -->
+        <div class="map-overlay legend-card">
+          <h3 class="legend-title">Fusion Decision Status</h3>
+          <div class="legend-items">
+            <div class="legend-item">
+              <span class="legend-badge badge-red"></span>
+              <div>
+                <strong>Confirmed Hotspot</strong>
+                <span class="legend-sub">Risk &ge; 0.6 + Flooded</span>
+              </div>
+            </div>
+            <div class="legend-item">
+              <span class="legend-badge badge-orange"></span>
+              <div>
+                <strong>Predicted, Not Observed</strong>
+                <span class="legend-sub">Risk &ge; 0.6 + Clear</span>
+              </div>
+            </div>
+            <div class="legend-item">
+              <span class="legend-badge badge-purple"></span>
+              <div>
+                <strong>Unexpected Flooding</strong>
+                <span class="legend-sub">Risk &lt; 0.6 + Flooded (Gap)</span>
+              </div>
+            </div>
+            <div class="legend-item">
+              <span class="legend-badge badge-green"></span>
+              <div>
+                <strong>Clear</strong>
+                <span class="legend-sub">Risk &lt; 0.6 + Clear</span>
+              </div>
+            </div>
+          </div>
+          <div class="legend-footer">
+            <small>Polled every 3s • Auto-refreshing</small>
+          </div>
+        </div>
+
+        <!-- Quick Stats Bar -->
+        <div class="map-overlay stats-bar">
+          <div class="stat-item">
+            <span class="stat-value" id="stat-total-obs">0</span>
+            <span class="stat-label">Observations</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value text-red" id="stat-hotspots">0</span>
+            <span class="stat-label">Hotspots</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value text-purple" id="stat-gaps">0</span>
+            <span class="stat-label">Model Gaps</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Side Inspector Panel (Shows on Marker Click) -->
+      <aside id="inspector-panel" class="inspector-panel">
+        <div class="panel-header">
+          <h2 class="panel-title">Observation Inspector</h2>
+          <button id="btn-close-panel" class="btn-icon" aria-label="Close panel">&times;</button>
+        </div>
+
+        <div id="panel-empty-state" class="panel-body empty-state">
+          <div class="empty-icon">
+            <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+          </div>
+          <h3>No Marker Selected</h3>
+          <p>Click any camera observation marker on the map to inspect CV outputs, depth estimations, and fusion telemetry.</p>
+        </div>
+
+        <div id="panel-content-state" class="panel-body content-state" style="display: none;">
+          <!-- Status Banner -->
+          <div id="detail-status-banner" class="status-banner">
+            <span id="detail-status-text">Confirmed Hotspot</span>
+          </div>
+
+          <!-- Metadata Grid -->
+          <div class="detail-section">
+            <h4 class="section-title">Telemetry & Coordinates</h4>
+            <div class="meta-grid">
+              <div class="meta-item">
+                <span class="meta-label">Camera ID</span>
+                <span class="meta-val" id="detail-camera-id">-</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">Image ID</span>
+                <span class="meta-val" id="detail-image-id">-</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">Coordinates</span>
+                <span class="meta-val" id="detail-coords">-</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">Timestamp</span>
+                <span class="meta-val" id="detail-timestamp">-</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Fusion Breakdown -->
+          <div class="detail-section">
+            <h4 class="section-title">Evidence Fusion</h4>
+            
+            <div class="meter-box">
+              <div class="meter-header">
+                <span>Predicted SWMM Risk</span>
+                <span id="detail-risk-val" class="meter-num">0.85</span>
+              </div>
+              <div class="meter-bar-bg">
+                <div id="detail-risk-bar" class="meter-bar-fill" style="width: 85%;"></div>
+              </div>
+              <small class="meter-threshold-text">Threshold for high-risk: 0.60</small>
+            </div>
+
+            <div class="cv-metrics-card">
+              <div class="cv-metric">
+                <span class="cv-metric-label">CV Standing Water</span>
+                <span id="detail-cv-flooded" class="cv-metric-value text-red">Detected (38.5%)</span>
+              </div>
+              <div class="cv-metric">
+                <span class="cv-metric-label">Estimated Depth Class</span>
+                <span id="detail-cv-depth" class="cv-metric-value depth-tag">KNEE</span>
+              </div>
+              <div class="cv-metric">
+                <span class="cv-metric-label">Model Confidence</span>
+                <span id="detail-cv-conf" class="cv-metric-value">91.4%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Image Preview -->
+          <div class="detail-section">
+            <h4 class="section-title">Annotated Camera Frame</h4>
+            <div class="image-preview-container">
+              <div class="image-frame-placeholder" id="image-placeholder">
+                <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                  <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                  <polyline points="21 15 16 10 5 21"></polyline>
+                </svg>
+                <span id="detail-annot-path">outputs/img_annot.png</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Contract 1 JSON Output -->
+          <div class="detail-section">
+            <div class="json-header">
+              <h4 class="section-title">Shared Contract JSON (P1 &rarr; P4)</h4>
+              <button id="btn-copy-json" class="btn-copy">Copy</button>
+            </div>
+            <pre id="detail-json-block" class="json-box"><code>{}</code></pre>
+          </div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <!-- Application Logic -->
+  <script src="/static/app.js"></script>
+</body>
+</html>

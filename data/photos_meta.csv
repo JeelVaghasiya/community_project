@@ -1,0 +1,5 @@
+id,filename,lat,lon,timestamp,camera_id
+img_001,photos/img_001.jpg,12.9172,77.6228,2026-10-21T10:00:00Z,cam_silkboard_01
+img_002,photos/img_002.jpg,12.9185,77.6241,2026-10-21T10:00:05Z,cam_silkboard_02
+img_003,photos/img_003.jpg,12.9150,77.6210,2026-10-21T10:00:10Z,cam_silkboard_03
+img_004,photos/img_004.jpg,12.9190,77.6200,2026-10-21T10:00:15Z,cam_silkboard_04

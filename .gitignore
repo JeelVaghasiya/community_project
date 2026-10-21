@@ -1,0 +1,50 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# IDE and OS
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Testing and linting
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Database files
+*.sqlite
+*.sqlite3
+*.db
+
+# Monorepo data rules (as per project spec)
+# Do NOT commit large raw datasets or DEM files; keep on Google Drive
+data/dem/*
+!data/dem/.gitkeep
+!data/dem/README.md
+
+# Large model weights / checkpoints
+*.pt
+*.pth
+*.onnx
+*.bin
+weights/
+checkpoints/
+
+# Intermediate GIS rasters & temporary outputs
+*.tif
+*.tiff
+*.vrt
+outputs/*
+!outputs/.gitkeep
