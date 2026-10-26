@@ -1,9 +1,7 @@
-
 """Download OpenStreetMap data for the Silk Board flood-risk pilot."""
 
 from pathlib import Path
 
-import geopandas as gpd
 import osmnx as ox
 
 # Project root and pilot-area bounds
@@ -26,26 +24,19 @@ def main():
     bbox = (WEST, SOUTH, EAST, NORTH)
 
     print("Downloading road network...")
-    graph = ox.graph_from_bbox(
-        bbox, network_type="drive", simplify=True
-    )
+    graph = ox.graph_from_bbox(bbox, network_type="drive", simplify=True)
     roads = ox.graph_to_gdfs(graph, nodes=False, edges=True)
     roads.to_file(OUTPUT_DIR / "roads.geojson", driver="GeoJSON")
     print(f"Saved {len(roads)} road segments.")
 
     print("Downloading building footprints...")
-    buildings = ox.features_from_bbox(
-        bbox, tags={"building": True}
-    )
+    buildings = ox.features_from_bbox(bbox, tags={"building": True})
     buildings = buildings[
         buildings.geometry.geom_type.isin(["Polygon", "MultiPolygon"])
     ]
-    buildings.to_file(
-        OUTPUT_DIR / "buildings.geojson", driver="GeoJSON"
-    )
+    buildings.to_file(OUTPUT_DIR / "buildings.geojson", driver="GeoJSON")
     print(f"Saved {len(buildings)} buildings.")
 
-  
     print("Downloading hospitals and critical facilities...")
 
     try:
@@ -74,7 +65,6 @@ def main():
         print("Retry the facilities download later.")
 
     print(f"\nOSM extraction finished. Files saved in: {OUTPUT_DIR}")
-
 
 
 if __name__ == "__main__":

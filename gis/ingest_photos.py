@@ -1,4 +1,3 @@
-
 """Extract photo metadata into the project's shared CSV contract."""
 
 import csv
@@ -31,12 +30,8 @@ def get_gps(tags):
         lon = tags["GPS GPSLongitude"].values
         lon_ref = str(tags["GPS GPSLongitudeRef"])
 
-        latitude = to_decimal(
-            lat[0], lat[1], lat[2], lat_ref
-        )
-        longitude = to_decimal(
-            lon[0], lon[1], lon[2], lon_ref
-        )
+        latitude = to_decimal(lat[0], lat[1], lat[2], lat_ref)
+        longitude = to_decimal(lon[0], lon[1], lon[2], lon_ref)
         return latitude, longitude
     except (KeyError, IndexError, TypeError, ValueError, ZeroDivisionError):
         return None, None
@@ -47,7 +42,8 @@ def main():
     records = []
 
     photos = sorted(
-        path for path in PHOTO_DIR.rglob("*")
+        path
+        for path in PHOTO_DIR.rglob("*")
         if path.is_file() and path.suffix.lower() in IMAGE_EXTENSIONS
     )
 
@@ -57,19 +53,20 @@ def main():
                 tags = exifread.process_file(file, details=False)
 
             latitude, longitude = get_gps(tags)
-            timestamp = (
-                str(tags.get("EXIF DateTimeOriginal", ""))
-                or str(tags.get("Image DateTime", ""))
+            timestamp = str(tags.get("EXIF DateTimeOriginal", "")) or str(
+                tags.get("Image DateTime", "")
             )
 
-            records.append({
-                "id": f"photo_{index:04d}",
-                "filename": str(photo.relative_to(PHOTO_DIR)),
-                "lat": "" if latitude is None else latitude,
-                "lon": "" if longitude is None else longitude,
-                "timestamp": timestamp,
-                "camera_id": str(tags.get("Image Model", "")),
-            })
+            records.append(
+                {
+                    "id": f"photo_{index:04d}",
+                    "filename": str(photo.relative_to(PHOTO_DIR)),
+                    "lat": "" if latitude is None else latitude,
+                    "lon": "" if longitude is None else longitude,
+                    "timestamp": timestamp,
+                    "camera_id": str(tags.get("Image Model", "")),
+                }
+            )
 
         except (OSError, ValueError) as error:
             print(f"Skipping {photo.name}: {error}")
