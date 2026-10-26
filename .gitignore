@@ -48,3 +48,6 @@ checkpoints/
 *.vrt
 outputs/*
 !outputs/.gitkeep
+
+# OSMnx cache
+cache/
